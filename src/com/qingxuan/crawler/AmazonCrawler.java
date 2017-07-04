@@ -106,11 +106,11 @@ public class AmazonCrawler {
         }
     }
 
-    public List<Ad> getAmazonProds(String query, double bidPrice, int campaignId, int queryGroupID, int pageNum, int startInd) {
+    public List<Ad> getAmazonProds(String query, double bidPrice, int campaignId, int queryGroupID, int pageNum) {
         String queryURL = query.replaceAll(" ", "+");
-        //System.out.println(query);
+        System.out.println(query);
         String url = AMAZON_QUERY_URL + queryURL + "&page=" + pageNum;
-        System.out.println("url: " + url);
+        //System.out.println("url: " + url);
 
         List<Ad> ads = new ArrayList<>();
 
@@ -121,9 +121,9 @@ public class AmazonCrawler {
             //headers.put("Accept-Language", "en-US,en;q=0.8");
             //Document doc = Jsoup.connect(url).maxBodySize(0).headers(headers).userAgent(USER_AGENT).timeout(10000).get();
             Document doc = Jsoup.connect(url).maxBodySize(0).userAgent(USER_AGENT).timeout(10000).get();
-            System.out.println(doc.text());
+            //System.out.println(doc.text());
             Integer docSize = doc.text().length();
-            System.out.println("page size: " + docSize);
+            //System.out.println("page size: " + docSize);
 
 
             // all products in the list.
@@ -131,15 +131,16 @@ public class AmazonCrawler {
 
             System.out.println("number of prod: " + prods.size());
             if(prods.size()==0) return null;
+            int startInd =  Integer.valueOf(prods.get(0).id().substring(7));
 
             // get categoryStr
             Element category = doc.select("#leftNavContainer > ul:nth-child(2) > div > li:nth-child(1) > span > a > h4").first();
             String categoryStr = category.text();
-            System.out.println("prod category: " + categoryStr);
+            //System.out.println("prod category: " + categoryStr);
 
 
 
-            for(Integer i = startInd;i < prods.size();i++){
+            for(Integer i = startInd;i < prods.size()+startInd; i++){
                 // initialize a new Ad prod
                 Ad ad = new Ad();
 
@@ -151,15 +152,15 @@ public class AmazonCrawler {
                 //if current result_i not exit.
                 if(prodsById==null){
                     //System.out.println(id + "not exist");
-                    ads.add(null);
+
                     continue;
                 }
 
                 //Use asin as HashSet key value for dedupe.
                 String asin = prodsById.attr("data-asin");
-                System.out.println("prod asin: " + asin);
+                //System.out.println("prod asin: " + asin);
                 if(existProd.contains(asin)){
-                    ads.add(null);
+                    //ads.add(null);
                     continue; //dedupe
                 }
 
@@ -303,10 +304,10 @@ public class AmazonCrawler {
 
     }
 
-    public List<Ad> GetAdsInfoByQuery(String query, double bidPrice, int campaignId, int queryGroupID, int pageNum, int startInd){
+    public List<Ad> GetAdsInfoByQuery(String query, double bidPrice, int campaignId, int queryGroupID, int pageNum){
 
         AssignIPByRoundRobin();
-        return getAmazonProds(query, bidPrice, campaignId, queryGroupID, pageNum, startInd);
+        return getAmazonProds(query, bidPrice, campaignId, queryGroupID, pageNum);
     }
 
     private void AssignIPByRoundRobin(){
@@ -331,7 +332,7 @@ public class AmazonCrawler {
         for(String str: keyWordsArray){
             if(str==null || str.equals("") ||str.equals(" ")) continue;
             if(!stopWords.containsWord(str.trim())){
-                keywords.add(str.trim());
+                keywords.add(str.trim().toLowerCase());
             }
         }
 

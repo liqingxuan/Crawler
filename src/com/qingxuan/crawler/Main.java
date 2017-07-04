@@ -56,12 +56,11 @@ public class Main {
                 int queryGroupID = Integer.parseInt(fields[3].trim());
                 System.out.println(query);
 
-                //set index for current ads.
-                int startInd = 0;
+
 
                 //read first 3 page for each query.
                 for(int pageNum = 1; pageNum <= 3; pageNum++){
-                    List<Ad> ads = crawler.GetAdsInfoByQuery(query, bidPrice, campaignID, queryGroupID, pageNum, startInd);
+                    List<Ad> ads = crawler.GetAdsInfoByQuery(query, bidPrice, campaignID, queryGroupID, pageNum);
                     if(ads==null || ads.size()==0) continue;
                     for(Ad ad: ads){
                         if(ad==null) continue;
@@ -70,7 +69,6 @@ public class Main {
                         bw.write(jsonInString);
                         bw.newLine();
                     }
-                    startInd += ads.size();
                     Thread.sleep(2000);
                 }
 
